@@ -3,9 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+import pkg from "@prisma/client";
 
 dotenv.config();
+
+const { PrismaClient } = pkg;
 
 const prisma = new PrismaClient();
 
