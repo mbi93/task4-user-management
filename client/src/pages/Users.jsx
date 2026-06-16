@@ -42,19 +42,27 @@ function Users() {
     }
   };
 
-const handleBlock = async () => {
-  try {
-    await api.post("/users/block", {
-      userIds: selectedUsers,
-    });
+  const handleBlock = async () => {
+    try {
+      await api.post("/users/block", {
+        userIds: selectedUsers,
+      });
 
-    setMessage("Users blocked successfully");
-    clearSelection();
+      setMessage("Users blocked successfully");
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      setUsers((prev) =>
+        prev.map((user) =>
+          selectedUsers.includes(user.id)
+            ? { ...user, status: "blocked" }
+            : user
+        )
+      );
+
+      clearSelection();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleUnblock = async () => {
     try {
@@ -63,8 +71,16 @@ const handleBlock = async () => {
       });
 
       setMessage("Users unblocked successfully");
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          selectedUsers.includes(user.id)
+            ? { ...user, status: "unverified" }
+            : user
+        )
+      );
+
       clearSelection();
-      await loadUsers();
     } catch (error) {
       console.error(error);
     }
@@ -79,8 +95,14 @@ const handleBlock = async () => {
       });
 
       setMessage("Users deleted successfully");
+
+      setUsers((prev) =>
+        prev.filter(
+          (user) => !selectedUsers.includes(user.id)
+        )
+      );
+
       clearSelection();
-      await loadUsers();
     } catch (error) {
       console.error(error);
     }
@@ -91,8 +113,14 @@ const handleBlock = async () => {
       await api.delete("/users/unverified");
 
       setMessage("Unverified users deleted");
+
+      setUsers((prev) =>
+        prev.filter(
+          (user) => user.status !== "unverified"
+        )
+      );
+
       clearSelection();
-      await loadUsers();
     } catch (error) {
       console.error(error);
     }
@@ -124,7 +152,6 @@ const handleBlock = async () => {
 
       <div className="mb-3">
         <button
-          title="Block selected users"
           className="btn btn-danger me-2"
           disabled={selectedUsers.length === 0}
           onClick={handleBlock}
@@ -133,7 +160,6 @@ const handleBlock = async () => {
         </button>
 
         <button
-          title="Unblock selected users"
           className="btn btn-success me-2"
           disabled={selectedUsers.length === 0}
           onClick={handleUnblock}
@@ -142,7 +168,6 @@ const handleBlock = async () => {
         </button>
 
         <button
-          title="Delete selected users"
           className="btn btn-warning me-2"
           disabled={selectedUsers.length === 0}
           onClick={handleDelete}
@@ -151,7 +176,6 @@ const handleBlock = async () => {
         </button>
 
         <button
-          title="Delete all unverified users"
           className="btn btn-secondary"
           onClick={handleDeleteUnverified}
         >
@@ -199,7 +223,9 @@ const handleBlock = async () => {
 
               <td>
                 {user.lastLogin
-                  ? new Date(user.lastLogin).toLocaleString()
+                  ? new Date(
+                      user.lastLogin
+                    ).toLocaleString()
                   : "-"}
               </td>
             </tr>
