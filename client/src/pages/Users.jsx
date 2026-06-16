@@ -42,19 +42,19 @@ function Users() {
     }
   };
 
-  const handleBlock = async () => {
-    try {
-      await api.post("/users/block", {
-        userIds: selectedUsers,
-      });
+const handleBlock = async () => {
+  try {
+    await api.post("/users/block", {
+      userIds: selectedUsers,
+    });
 
-      setMessage("Users blocked successfully");
-      clearSelection();
-      await loadUsers();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    setMessage("Users blocked successfully");
+    clearSelection();
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleUnblock = async () => {
     try {
