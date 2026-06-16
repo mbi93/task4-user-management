@@ -86,28 +86,44 @@ function Users() {
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await api.delete("/users", {
-        data: {
-          userIds: selectedUsers,
-        },
-      });
+const handleDelete = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-      setMessage("Users deleted successfully");
+    const payload = JSON.parse(
+      atob(token.split(".")[1])
+    );
 
-      setUsers((prev) =>
-        prev.filter(
-          (user) => !selectedUsers.includes(user.id)
-        )
-      );
+    const currentUserId = payload.userId;
 
-      clearSelection();
-    } catch (error) {
-      console.error(error);
+    const deletingSelf =
+      selectedUsers.includes(currentUserId);
+
+    await api.delete("/users", {
+      data: {
+        userIds: selectedUsers,
+      },
+    });
+
+    if (deletingSelf) {
+      localStorage.removeItem("token");
+      navigate("/");
+      return;
     }
-  };
 
+    setMessage("Users deleted successfully");
+
+    setUsers((prev) =>
+      prev.filter(
+        (user) => !selectedUsers.includes(user.id)
+      )
+    );
+
+    clearSelection();
+  } catch (error) {
+    console.error(error);
+  }
+};
   const handleDeleteUnverified = async () => {
     try {
       await api.delete("/users/unverified");
